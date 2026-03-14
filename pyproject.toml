@@ -25,7 +25,7 @@ dependencies = [
 ]
 [project.scripts]
 predict-prices = "house_price_prediction.cli:main"
-serve-app = "house_price_prediction.webapp.main:app"
+serve-app = "house_price_prediction.webapp.main:start"
 generate-visuals = "house_price_prediction.generate_visuals:generate_plots"
 
 [tool.hatch.build.targets.wheel]

@@ -19,38 +19,25 @@ def preprocess_data(train_df, test_df):
     num_cols = [col for col in train_df.columns if train_df[col].dtype in ['float64', 'int64']]
     cat_cols = [col for col in train_df.columns if train_df[col].dtype not in ['float64', 'int64']]
     
-    # Impute numeric values
+    # Preprocessors
     num_imputer = SimpleImputer(strategy='mean')
+    scaler = MinMaxScaler()
+    cat_imputer = SimpleImputer(strategy='constant', fill_value='none')
+    encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
+
+    # Fit and transform
     train_df[num_cols] = num_imputer.fit_transform(train_df[num_cols])
     test_df[num_cols] = num_imputer.transform(test_df[num_cols])
     
-    # Scale numeric values
-    scaler = MinMaxScaler()
     train_df[num_cols] = scaler.fit_transform(train_df[num_cols])
     test_df[num_cols] = scaler.transform(test_df[num_cols])
     
-    # Impute categorical values (specifics from notebook)
-    columns_none = [
-        'BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2',
-        'GarageType', 'GarageFinish', 'GarageQual', 'FireplaceQu', 'GarageCond',
-        'MasVnrType', 'Electrical', 'MSZoning', 'Utilities', 'Functional',
-        'Exterior2nd', 'KitchenQual', 'Exterior1st', 'SaleType'
-    ]
-    
-    # Ensure all columns in columns_none exist in the dataframe before filling
-    existing_cols_none = [c for c in columns_none if c in train_df.columns]
-    train_df[existing_cols_none] = train_df[existing_cols_none].fillna('none')
-    test_df[existing_cols_none] = test_df[existing_cols_none].fillna('none')
-    
-    # General categorical imputation for any remaining
-    cat_imputer = SimpleImputer(strategy='constant', fill_value='none')
+    # Categorical Imputation
     train_df[cat_cols] = cat_imputer.fit_transform(train_df[cat_cols])
     test_df[cat_cols] = cat_imputer.transform(test_df[cat_cols])
     
     # One-hot encoding
-    encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
     encoder.fit(train_df[cat_cols])
-    
     encoded_cols = list(encoder.get_feature_names_out(cat_cols))
     
     train_encoded = pd.DataFrame(encoder.transform(train_df[cat_cols]), columns=encoded_cols, index=train_df.index)
@@ -60,20 +47,54 @@ def preprocess_data(train_df, test_df):
     train_final = pd.concat([train_df[num_cols], train_encoded], axis=1)
     test_final = pd.concat([test_df[num_cols], test_encoded], axis=1)
     
-    return train_final, test_final, y
-
-def create_inference_df(data_dict, feature_names):
-    """
-    Creates a full feature dataframe from a dictionary of key inputs.
-    Uses defaults for missing features.
-    """
-    # Create an empty df with correct columns
-    inf_df = pd.DataFrame(columns=feature_names)
-    inf_df.loc[0] = 0.0 # Default to 0 for all
+    transformers = {
+        'num_imputer': num_imputer,
+        'scaler': scaler,
+        'cat_imputer': cat_imputer,
+        'encoder': encoder,
+        'num_cols': num_cols,
+        'cat_cols': cat_cols,
+        'feature_names': train_final.columns.tolist()
+    }
     
-    # Fill in provided values
-    for key, value in data_dict.items():
-        if key in feature_names:
-            inf_df.at[0, key] = float(value)
-            
-    return inf_df
+    return train_final, test_final, y, transformers
+
+def transform_inference_data(data_dict, transformers):
+    """
+    Transforms raw input dictionary for inference using fitted transformers.
+    """
+    # Create empty dataframe with all original raw columns
+    raw_df = pd.DataFrame([data_dict])
+    
+    # We need to handle the case where the user only provides a subset of features
+    # Fill missing columns with reasonable defaults (training means/modes)
+    # For simplicity, we'll assume the web app provides the key ones
+    # and we use the transformers fitted on full training data
+    
+    # 1. Prepare numerical part
+    num_cols = transformers['num_cols']
+    num_data = pd.DataFrame(index=[0], columns=num_cols)
+    for col in num_cols:
+        val = data_dict.get(col, 0) # Fallback to 0 if not provided
+        num_data.at[0, col] = float(val)
+        
+    # Impute and Scale
+    num_data = transformers['num_imputer'].transform(num_data)
+    num_data = transformers['scaler'].transform(num_data)
+    num_df = pd.DataFrame(num_data, columns=num_cols)
+    
+    # 2. Prepare categorical part
+    cat_cols = transformers['cat_cols']
+    cat_data = pd.DataFrame(index=[0], columns=cat_cols)
+    for col in cat_cols:
+        cat_data.at[0, col] = data_dict.get(col, 'none')
+        
+    # Impute and Encode
+    cat_data = transformers['cat_imputer'].transform(cat_data)
+    cat_encoded = transformers['encoder'].transform(cat_data)
+    cat_df = pd.DataFrame(cat_encoded, columns=transformers['encoder'].get_feature_names_out(cat_cols))
+    
+    # Combine
+    final_df = pd.concat([num_df, cat_df], axis=1)
+    return final_df[transformers['feature_names']]
+

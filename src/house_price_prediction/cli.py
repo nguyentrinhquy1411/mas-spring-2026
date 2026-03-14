@@ -9,7 +9,7 @@ def main():
     train_df, test_df = load_data()
     
     print("\n--- Preprocessing Data ---")
-    X_train, X_test, y = preprocess_data(train_df, test_df)
+    X_train, X_test, y, transformers = preprocess_data(train_df, test_df)
     print(f"Features after preprocessing: {X_train.shape[1]}")
     
     print("\n--- Evaluating Base Models ---")
@@ -23,10 +23,8 @@ def main():
     print("\n--- Saving Model and Artifacts ---")
     os.makedirs("models", exist_ok=True)
     joblib.dump(model, "models/xgboost_model.joblib")
-    print("Model saved to models/xgboost_model.joblib")
-    
-    # We should also save feature names to ensure web app uses same order
-    joblib.dump(X_train.columns.tolist(), "models/feature_names.joblib")
+    joblib.dump(transformers, "models/transformers.joblib")
+    print("Model and transformers saved to models/")
     
     print("\n--- Generating Predictions ---")
     test_preds = model.predict(X_test)

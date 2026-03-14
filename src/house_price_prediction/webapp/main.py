@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from house_price_prediction.preprocessing import create_inference_df
+from house_price_prediction.preprocessing import transform_inference_data
 
 app = FastAPI(title="Aura Estates Predictor")
 
@@ -16,8 +16,9 @@ app.mount("/static", StaticFiles(directory="src/house_price_prediction/webapp/st
 templates = Jinja2Templates(directory="src/house_price_prediction/webapp/templates")
 
 # Model Loading
+# Model Loading
 MODEL_PATH = "models/xgboost_model.joblib"
-FEATURES_PATH = "models/feature_names.joblib"
+TRANSFORMERS_PATH = "models/transformers.joblib"
 
 class HouseFeatures(BaseModel):
     GrLivArea: float
@@ -34,21 +35,25 @@ async def home(request: Request):
 @app.post("/predict")
 async def predict(features: HouseFeatures):
     if not os.path.exists(MODEL_PATH):
-        return {"error": "Model not trained yet. Run the training script first."}
+        return {"error": "Model not trained yet."}
     
-    # Load model and feature list
+    # Load model and transformers
     model = joblib.load(MODEL_PATH)
-    feature_names = joblib.load(FEATURES_PATH)
+    transformers = joblib.load(TRANSFORMERS_PATH)
     
     # Create input vector
     input_data = features.model_dump()
-    input_df = create_inference_df(input_data, feature_names)
+    input_df = transform_inference_data(input_data, transformers)
     
     # Predict
     prediction = model.predict(input_df)[0]
     
     return {"prediction": float(prediction)}
 
-if __name__ == "__main__":
+def start():
+    """Launched with `uv run serve-app`"""
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("house_price_prediction.webapp.main:app", host="0.0.0.0", port=8000, reload=True)
+
+if __name__ == "__main__":
+    start()
