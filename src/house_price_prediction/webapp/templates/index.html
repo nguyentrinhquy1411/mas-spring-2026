@@ -14,7 +14,13 @@
     </header>
 
     <main class="app-container">
-        <div class="section2">Exclusive Property Assessment</div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'Valuation')">Valuation</button>
+            <button class="tab-btn" onclick="openTab(event, 'Insights')">Market Insights</button>
+        </div>
+
+        <div id="Valuation" class="tab-content active">
+            <div class="section2">Exclusive Property Assessment</div>
         
         <div class="intro">
             Welcome to the future of house price estimation. 
@@ -75,9 +81,25 @@
             </div>
         </div>
 
-        <div class="intro2">
-            <mark>Insight ㅤ📈</mark>
-            <p>Properties with high <strong>Overall Quality</strong> and large <strong>Living Area</strong> often command a significant premium in the current market. Our model accounts for over 70 distinct features to calculate this value.</p>
+        <div id="Insights" class="tab-content">
+            <div class="section2">Market Data Visualizations</div>
+            <div class="card">
+                <h2 class="section">Price Distribution</h2>
+                <img src="/static/plots/price_dist.png" alt="Price Distribution" style="width: 100%; border-radius: 10px;">
+                <p class="intro">Most houses sell between $100k and $250k, with a long tail of luxury properties reaching over $700k.</p>
+            </div>
+            
+            <div class="card">
+                <h2 class="section">Quality Impact</h2>
+                <img src="/static/plots/quality_price.png" alt="Quality vs Price" style="width: 100%; border-radius: 10px;">
+                <p class="intro">Overall quality is the single most significant predictor of value. Each quality point increases potential sale price exponentially.</p>
+            </div>
+
+            <div class="card">
+                <h2 class="section">Feature Correlation</h2>
+                <img src="/static/plots/correlations.png" alt="Top Correlations" style="width: 100%; border-radius: 10px;">
+                <p class="intro">Living area, garage capacity, and basement size are the primary drivers of market appreciation.</p>
+            </div>
         </div>
     </main>
 
@@ -86,6 +108,20 @@
     </footer>
 
     <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
         document.getElementById('predictionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             

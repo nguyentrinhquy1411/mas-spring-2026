@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "mas-2026"
 version = "0.1.0"
@@ -20,4 +24,9 @@ dependencies = [
     "xgboost>=3.2.0",
 ]
 [project.scripts]
-predict-prices = "main:main"
+predict-prices = "house_price_prediction.cli:main"
+serve-app = "house_price_prediction.webapp.main:app"
+generate-visuals = "house_price_prediction.generate_visuals:generate_plots"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/house_price_prediction"]

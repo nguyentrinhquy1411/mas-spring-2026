@@ -10,10 +10,10 @@ from house_price_prediction.preprocessing import create_inference_df
 app = FastAPI(title="Aura Estates Predictor")
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="src/webapp/static"), name="static")
+app.mount("/static", StaticFiles(directory="src/house_price_prediction/webapp/static"), name="static")
 
 # Templates
-templates = Jinja2Templates(directory="src/webapp/templates")
+templates = Jinja2Templates(directory="src/house_price_prediction/webapp/templates")
 
 # Model Loading
 MODEL_PATH = "models/xgboost_model.joblib"
