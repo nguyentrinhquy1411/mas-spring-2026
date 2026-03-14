@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv
+
+# Data and Models
+data/
+models/
+*.csv
+*.joblib
+*.png
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Environment
+.env
+.python-version
