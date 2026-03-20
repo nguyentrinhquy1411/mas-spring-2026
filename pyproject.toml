@@ -25,7 +25,7 @@ dependencies = [
     "xgboost>=3.2.0",
 ]
 [project.scripts]
-app = "house_price_prediction.webapp.main:app"
+app = "src.house_price_prediction.webapp.main:app"
 predict-prices = "house_price_prediction.cli:main"
 serve-app = "house_price_prediction.webapp.main:start"
 generate-visuals = "house_price_prediction.generate_visuals:generate_plots"
