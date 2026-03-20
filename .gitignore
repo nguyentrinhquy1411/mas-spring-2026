@@ -9,7 +9,6 @@ wheels/
 
 # Data and Models
 data/
-*.csv
 *.png
 
 # Notebooks
