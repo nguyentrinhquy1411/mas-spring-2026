@@ -20,3 +20,5 @@ models/
 # Environment
 .env
 .python-version
+.vercel
+.env*.local
