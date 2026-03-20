@@ -9,9 +9,7 @@ wheels/
 
 # Data and Models
 data/
-models/
 *.csv
-*.joblib
 *.png
 
 # Notebooks
