@@ -4,3 +4,10 @@ data/
 *.csv
 .venv/
 generate_full_project_report.py
+uv.lock
+.python-version
+tests/
+**/*.pyc
+__pycache__/
+
+public/

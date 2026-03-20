@@ -21,9 +21,9 @@
 
         <div id="Valuation" class="tab-content active">
             <div class="section2">Exclusive Property Assessment</div>
-        
+
         <div class="intro">
-            Welcome to the future of house price estimation. 
+            Welcome to the future of house price estimation.
             Our model uses gradient boosting techniques to provide highly accurate market valuations.
         </div>
 
@@ -88,7 +88,7 @@
                 <img src="/static/plots/price_dist.png" alt="Price Distribution" style="width: 100%; border-radius: 10px;">
                 <p class="intro">Most houses sell between $100k and $250k, with a long tail of luxury properties reaching over $700k.</p>
             </div>
-            
+
             <div class="card">
                 <h2 class="section">Quality Impact</h2>
                 <img src="/static/plots/quality_price.png" alt="Quality vs Price" style="width: 100%; border-radius: 10px;">
@@ -104,7 +104,7 @@
     </main>
 
     <footer style="text-align: center; padding: 40px; color: #909195;">
-        &copy; 2026 Aura Estates Prediction Engine. Powered by Google Deepmind AI Architectures.
+        &copy; 2026 Aura Estates Prediction Engine.
     </footer>
 
     <script>
@@ -124,10 +124,10 @@
 
         document.getElementById('predictionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
-            
+
             // Show loading state
             const btn = e.target.querySelector('button');
             const originalText = btn.innerText;
@@ -145,9 +145,9 @@
                     },
                     body: JSON.stringify(data),
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.prediction) {
                     priceSpan.innerText = result.prediction.toLocaleString('en-US', {
                         style: 'currency',
